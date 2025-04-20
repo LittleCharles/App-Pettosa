@@ -17,7 +17,7 @@ O **PetTosa** é um aplicativo mobile criado com **React Native** e **NativeWind
 
 ## 🛠️ Tecnologias Utilizadas
 
-- [React Native](https://reactnative.dev/)
+- [React Native](https://reactnative.dev/) – Framework para desenvolvimento de apps nativos
 - [NativeWind](https://www.nativewind.dev/) – Tailwind CSS para React Native
 - [Expo](https://expo.dev/) – Para facilitar o desenvolvimento e testes
 - [React Navigation](https://reactnavigation.org/) – Navegação entre telas
@@ -28,4 +28,4 @@ O **PetTosa** é um aplicativo mobile criado com **React Native** e **NativeWind
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/pettosa-app.git
+git clone https://github.com/LittleCharles/pettosa-app.git
