@@ -1,50 +1,30 @@
-# Welcome to your Expo app 👋
+# 🐶📱 PetTosa - App de Agendamento para Petshops
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+O **PetTosa** é um aplicativo mobile criado com **React Native**, idealizado para facilitar o agendamento de serviços em petshops. Com ele, tutores de pets conseguem marcar banho, tosa, vacinação e outros serviços com rapidez, praticidade e conforto — direto do celular!
 
-## Get started
+---
 
-1. Install dependencies
+## ✨ Funcionalidades do App
 
-   ```bash
-   npm install
-   ```
+- 📅 Agendamento online de serviços (banho, tosa, vacinação, etc.)
+- 🐾 Perfil completo do pet
+- 📍 Localização de petshops próximos
+- 🔔 Notificações de lembretes de agendamento
+- ⭐ Telas de favoritos para salvar petshops preferidos
+- 📲 Interface moderna e intuitiva
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🛠️ Tecnologias Utilizadas
 
-In the output, you'll find options to open the app in a
+- [React Native](https://reactnative.dev/) – Framework para desenvolvimento de apps nativos
+- [Expo](https://expo.dev/) – Para facilitar o desenvolvimento e testes
+- [React Navigation](https://reactnavigation.org/) – Navegação entre telas
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📲 Instalação e execução local
 
-## Get a fresh project
-
-When you're ready, run:
-
+1. Clone o repositório:
 ```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+git clone https://github.com/LittleCharles/pettosa-app.git
