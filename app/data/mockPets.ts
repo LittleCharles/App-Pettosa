@@ -39,7 +39,7 @@ export interface Pet {
       weight: '4.5',
       birthday: '2023-04-15',
       age: '2 anos',
-      avatar: require('../../assets/images/DogAvatar.png')
+      avatar: require('../../assets/images/GatoImage.png')
     },
     {
       id: '3',
@@ -52,7 +52,7 @@ export interface Pet {
       weight: '32.1',
       birthday: '2021-08-22',
       age: '4 anos',
-      avatar: require('../../assets/images/DogAvatar.png')
+      avatar: require('../../assets/images/Golden.png')
     }
   ];
   

@@ -274,7 +274,7 @@ export default function PetProfileScreen() {
                 style={styles.addPetButton}
                 onPress={() => {
                   setPetSelectorVisible(false);
-                  // Navegar para tela de adição de pet (a ser implementada)
+                  router.push('/pet/add');
                 }}
               >
                 <Ionicons name="add-circle" size={20} color="#FFFFFF" />

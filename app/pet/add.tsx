@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -7,26 +7,21 @@ import {
   TouchableOpacity, 
   ScrollView, 
   SafeAreaView, 
-  TextInput,
-  ActivityIndicator,
+  TextInput, 
   Modal,
   Alert,
   Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
-import { mockPets, getPetById, Pet } from '../../data/mockPets';
+import { useRouter, Stack } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function EditPetScreen() {
+export default function AddPetScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
-  const idParam = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : '1';
-  const [pet, setPet] = useState<Pet | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('Sobre');
   
-  // Estados para edição
+  // Estados para o formulário
   const [name, setName] = useState('');
   const [type, setType] = useState('');
   const [breed, setBreed] = useState('');
@@ -45,77 +40,61 @@ export default function EditPetScreen() {
   const sizeOptions = ['Pequeno', 'Médio', 'Grande'];
   const genderOptions = ['Macho', 'Fêmea'];
 
-  // Tabs (mantidos para consistência visual)
-  const tabs = ['Sobre', 'Consultas', 'Vacinas', 'Banho'];
-  const [activeTab, setActiveTab] = useState('Sobre');
-  const tabScrollRef = useRef(null);
-
   // Adicione um estado para a data selecionada
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
-  // Carregar dados do pet selecionado
-  useEffect(() => {
-    const loadPet = async () => {
-      setIsLoading(true);
-      const currentPet = getPetById(idParam);
-      
-      if (currentPet) {
-        setPet(currentPet);
-        
-        // Preencher estados com dados existentes
-        setName(currentPet.name);
-        setType(currentPet.type);
-        setBreed(currentPet.breed);
-        setDescription(currentPet.description);
-        setGender(currentPet.gender);
-        setSize(currentPet.size);
-        setWeight(currentPet.weight);
-        setBirthday(currentPet.birthday);
-      }
-      
-      setIsLoading(false);
-    };
-    
-    loadPet();
-  }, [idParam]);
+  
+  // Referência para o ScrollView horizontal
+  const tabScrollRef = useRef(null);
+  
+  // Array de tabs para facilitar o gerenciamento
+  const tabs = ['Sobre', 'Consultas', 'Vacinas', 'Banho'];
 
   const handleGoBack = () => {
     router.back();
   };
 
-  const handleSave = () => {
-    // Aqui você implementaria a lógica para salvar as alterações
-    // Por exemplo, uma chamada API para atualizar o pet no backend
+  const formatBirthday = (dateString: string) => {
+    if (!dateString) return '';
     
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return '';
+    }
+  };
+
+  const handleDateChange = (event: any, date?: Date) => {
+    if (date) {
+      setSelectedDate(date);
+      setBirthday(date.toISOString().split('T')[0]);
+    }
+  };
+
+  const handleSave = () => {
+    // Validar campos obrigatórios
+    if (!name) {
+      Alert.alert("Erro", "Por favor, digite o nome do pet");
+      return;
+    }
+
+    // Aqui você implementaria a lógica para salvar o novo pet
     Alert.alert(
-      "Alterações salvas",
-      "As informações do pet foram atualizadas com sucesso!",
+      'Pet cadastrado',
+      'O novo pet foi cadastrado com sucesso!',
       [
-        { text: "OK", onPress: () => router.back() }
+        { text: 'OK', onPress: () => router.back() }
       ]
     );
   };
 
-  const formatBirthday = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+  const handleEditPress = () => {
+    Alert.alert("Editar", "Personalize os dados do seu pet");
   };
-
-  const showDatePicker = () => setDateModalVisible(true);
-
-  // Se não houver dados do pet, mostrar uma tela de carregamento
-  if (isLoading || !pet) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#354259" />
-        <Text style={styles.loadingText}>Carregando informações do pet...</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <>
@@ -124,25 +103,22 @@ export default function EditPetScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" />
 
-        {/* Header Fixo - Mesmo da tela original */}
+        {/* Header Fixo */}
         <View style={styles.headerFixed}>
           <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#354259" />
-            <Text style={styles.headerTitle}>Editar pet</Text>
+            <Text style={styles.headerTitle}>Perfil do pet</Text>
           </TouchableOpacity>
    
-          <View style={styles.petSelectorContainer}>
-            <Image
-              source={pet.avatar}
-              style={styles.headerPetAvatar}
-            />
-            <Text style={styles.headerPetName}>{name}</Text>
-          </View>
+          <TouchableOpacity style={styles.newButtonContainer}>
+            <Text style={styles.newButtonText}>novo</Text>
+            <Ionicons name="chevron-down" size={16} color="#354259" />
+          </TouchableOpacity>
         </View>
 
         {/* Conteúdo Rolável */}
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Tab navigation mantida igual visualmente */}
+        <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Tab navigation com ScrollView horizontal */}
           <ScrollView
             ref={tabScrollRef}
             horizontal
@@ -162,50 +138,52 @@ export default function EditPetScreen() {
             ))}
           </ScrollView>
 
-          {/* Pet profile main info - Agora com campos editáveis */}
+          {/* Pet profile main info */}
           <View style={styles.profileSection}>
             <View style={styles.profileImageContainer}>
-              <Image
-                source={pet.avatar}
-                style={styles.profileImage}
-              />
-              <TouchableOpacity style={styles.editPhotoButton}>
-                <Ionicons name="camera" size={18} color="#FFFFFF" />
-              </TouchableOpacity>
+              <View style={styles.placeholderImageContainer}>
+                <Ionicons name="image-outline" size={40} color="#CCCCCC" />
+                <Ionicons name="add-circle" size={20} color="#CCCCCC" style={styles.addIcon} />
+              </View>
             </View>
             <View style={styles.nameSection}>
-              <TextInput
-                style={styles.nameInput}
-                value={name}
-                onChangeText={setName}
-                placeholder="Digite o nome"
-              />
+              <View style={styles.nameRow}>
+                <TextInput
+                  style={styles.nameInput}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Digite o nome"
+                />
+                <TouchableOpacity onPress={handleEditPress} style={styles.editIconButton}>
+                  <Ionicons name="pencil" size={18} color="#4A90E2" />
+                </TouchableOpacity>
+              </View>
               <View style={styles.typeBreedContainer}>
                 <TextInput
                   style={styles.typeInput}
                   value={type}
                   onChangeText={setType}
-                  placeholder="Tipo"
+                  placeholder="Espécie"
                 />
                 <Text style={styles.separator}> | </Text>
                 <TextInput
                   style={styles.breedInput}
                   value={breed}
                   onChangeText={setBreed}
-                  placeholder="Raça"
+                  placeholder="Informe a raça"
                 />
               </View>
             </View>
           </View>
 
-          {/* Appearance section - Campos editáveis */}
+          {/* Appearance section */}
           <View style={styles.infoSection}>
             <Text style={styles.sectionTitle}>Aparência</Text>
             <TextInput
               style={styles.descriptionInput}
               value={description}
               onChangeText={setDescription}
-              placeholder="Digite a descrição do seu pet aqui"
+              placeholder="Digite a descrição do seu pet aqui."
               multiline
               numberOfLines={3}
             />
@@ -216,7 +194,9 @@ export default function EditPetScreen() {
             >
               <Text style={styles.detailLabel}>Sexo</Text>
               <View style={styles.selectContainer}>
-                <Text style={styles.detailValue}>{gender}</Text>
+                <Text style={styles.selectText}>
+                  {gender || "Selecione"}
+                </Text>
                 <Ionicons name="chevron-forward" size={18} color="#354259" />
               </View>
             </TouchableOpacity>
@@ -227,7 +207,9 @@ export default function EditPetScreen() {
             >
               <Text style={styles.detailLabel}>Tamanho</Text>
               <View style={styles.selectContainer}>
-                <Text style={styles.detailValue}>{size}</Text>
+                <Text style={styles.selectText}>
+                  {size || "Selecione"}
+                </Text>
                 <Ionicons name="chevron-forward" size={18} color="#354259" />
               </View>
             </TouchableOpacity>
@@ -240,41 +222,41 @@ export default function EditPetScreen() {
                   value={weight}
                   onChangeText={setWeight}
                   keyboardType="numeric"
-                  placeholder="0.0"
+                  placeholder="Digite o peso"
                 />
                 <Text style={styles.weightUnit}>kg</Text>
               </View>
             </View>
           </View>
 
-          {/* Dates section - Campo de data editável */}
+          {/* Dates section */}
           <View style={styles.infoSection}>
             <Text style={styles.sectionTitle}>Registro de datas</Text>
             
             <TouchableOpacity 
               style={styles.dateCard}
-              onPress={showDatePicker}
+              onPress={() => setDateModalVisible(true)}
             >
               <View style={styles.dateIconContainer}>
                 <Ionicons name="calendar-outline" size={24} color="#4A90E2" />
               </View>
               <View style={styles.dateDetails}>
                 <Text style={styles.dateType}>Aniversário</Text>
-                <View style={styles.selectContainer}>
-                  <Text style={styles.dateValue}>{formatBirthday(birthday)}</Text>
-                </View>
+                <Text style={styles.dateText}>
+                  {birthday ? formatBirthday(birthday) : "Informe a data"}
+                </Text>
               </View>
-              <Text style={styles.ageValue}>{pet.age}</Text>
+              <Text style={styles.dateValue}>---</Text>
             </TouchableOpacity>
           </View>
 
-        
+          {/* Tutor section */}
           <View style={styles.infoSection}>
             <Text style={styles.sectionTitle}>Tutor</Text>
             
             <View style={styles.tutorContainer}>
               <Image
-                source={require('../../../assets/images/ProfileAvatar.png')}
+                source={require('../../assets/images/ProfileAvatar.png')}
                 style={styles.tutorImage}
               />
               <View style={styles.tutorDetails}>
@@ -284,14 +266,15 @@ export default function EditPetScreen() {
             </View>
           </View>
 
-          {/* Botão Salvar */}
+          {/* Save button */}
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.saveButtonText}>Salvar</Text>
           </TouchableOpacity>
 
+          {/* Bottom space */}
           <View style={styles.bottomPadding} />
         </ScrollView>
-        
+
         {/* Modal para selecionar Tamanho */}
         <Modal
           animationType="slide"
@@ -369,16 +352,62 @@ export default function EditPetScreen() {
         </Modal>
         
         {/* Modal para selecionar Data de Aniversário */}
-        {dateModalVisible && (
-          <DateTimePicker
-            value={selectedDate || new Date()}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={(event, date) => {
-              setDateModalVisible(false);
-              if (date) setSelectedDate(date);
-            }}
-          />
+        {Platform.OS === 'ios' ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={dateModalVisible}
+            onRequestClose={() => setDateModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Data de Aniversário</Text>
+                  <TouchableOpacity 
+                    style={styles.closeButton}
+                    onPress={() => setDateModalVisible(false)}
+                  >
+                    <Ionicons name="close" size={24} color="#354259" />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.datePickerContainer}>
+                  <DateTimePicker
+                    value={selectedDate || new Date()}
+                    mode="date"
+                    display="spinner"
+                    onChange={(event, date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                        setBirthday(date.toISOString().split('T')[0]);
+                      }
+                    }}
+                    style={{ width: '100%' }}
+                  />
+                  <TouchableOpacity
+                    style={styles.confirmDateButton}
+                    onPress={() => setDateModalVisible(false)}
+                  >
+                    <Text style={styles.confirmDateButtonText}>Confirmar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : (
+          dateModalVisible && (
+            <DateTimePicker
+              value={selectedDate || new Date()}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setDateModalVisible(false);
+                if (date) {
+                  setSelectedDate(date);
+                  setBirthday(date.toISOString().split('T')[0]);
+                }
+              }}
+            />
+          )
         )}
       </SafeAreaView>
     </>
@@ -390,16 +419,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  loadingContainer: {
+  scrollContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#354259',
   },
   headerFixed: {
     flexDirection: 'row',
@@ -412,11 +433,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   backButton: {
-    padding: 4,
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 10,
   },
   headerTitle: {
@@ -424,46 +442,32 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#354259',
   },
-  petSelectorContainer: {
+  newButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F5F5F7',
     borderRadius: 10,
     paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
-  headerPetAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    marginRight: 4,
-  },
-  headerPetName: {
+  newButtonText: {
     fontSize: 14,
     fontWeight: '500',
     color: '#354259',
     marginRight: 4,
   },
-  // Container para ScrollView horizontal dos tabs
+  // Tab navigation
   tabScrollContainer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
   },
   tab: {
-    width: 100,
-    height: 41,
-    display: "flex",
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 10,
     marginRight: 8,
-    marginBottom: 16,
-    backgroundColor: '#ECEFF2',
-    borderWidth: 1,
-    borderColor: '#D9DFE6',
-    color: '#838383',
+    backgroundColor: '#F5F5F7',
   },
   activeTab: {
     backgroundColor: '#344363',
@@ -476,6 +480,7 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: '#FFFFFF',
   },
+  // Profile section
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -484,47 +489,43 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     marginRight: 16,
-    position: 'relative',
   },
-  profileImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-  },
-  editPhotoButton: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#4A90E2',
-    borderRadius: 15,
-    width: 30,
-    height: 30,
+  placeholderImageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F5F5F7',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    position: 'relative',
+  },
+  addIcon: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
   },
   nameSection: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   nameInput: {
-    width: "50%",
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#354259',
     marginBottom: 4,
-    padding: 0,
   },
   typeBreedContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   typeInput: {
-    width: "50%",
     fontSize: 14,
     color: '#717786',
     flex: 1,
-    padding: 0,
   },
   separator: {
     fontSize: 14,
@@ -534,8 +535,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#717786',
     flex: 1,
-    padding: 0,
   },
+  editIconButton: {
+    padding: 8,
+  },
+  // Info sections
   infoSection: {
     paddingHorizontal: 20,
     paddingVertical: 16,
@@ -544,17 +548,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#354259',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   descriptionInput: {
     fontSize: 14,
     color: '#717786',
-    lineHeight: 20,
     marginBottom: 16,
     textAlignVertical: 'top',
     backgroundColor: '#F5F5F7',
     borderRadius: 8,
     padding: 12,
+    minHeight: 80,
   },
   detailRow: {
     flexDirection: 'row',
@@ -568,33 +572,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#717786',
   },
-  detailValue: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#354259',
-  },
   selectContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  selectText: {
+    fontSize: 14,
+    color: '#354259',
+    marginRight: 4,
   },
   weightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   weightInput: {
-    textAlign: 'right',
     fontSize: 14,
-    fontWeight: '500',
     color: '#354259',
-    minWidth: 50,
-    padding: 0,
+    textAlign: 'right',
+    minWidth: 80,
   },
   weightUnit: {
     fontSize: 14,
-    fontWeight: '500',
     color: '#354259',
     marginLeft: 4,
   },
+  // Date section
   dateCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -618,23 +620,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#717786',
   },
+  dateText: {
+    fontSize: 14,
+    color: '#354259',
+  },
   dateValue: {
     fontSize: 14,
     fontWeight: '500',
     color: '#354259',
   },
-  ageValue: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#354259',
-  },
+  // Tutor section
   tutorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
     paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   tutorImage: {
     width: 40,
@@ -654,8 +654,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#717786',
   },
+  // Save button
   saveButton: {
-    backgroundColor: '#354259',
+    backgroundColor: '#344363',
     borderRadius: 12,
     margin: 20,
     padding: 16,
@@ -710,5 +711,23 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     color: '#354259',
+  },
+  datePickerContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  confirmDateButton: {
+    backgroundColor: '#354259',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  confirmDateButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
