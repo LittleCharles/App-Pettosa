@@ -27,4 +27,4 @@ O **PetTosa** é um aplicativo mobile criado com **React Native**, idealizado pa
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/LittleCharles/pettosa-app.git
+git clone https://github.com/LittleCharles/App-Pettosa.git
